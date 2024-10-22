@@ -82,7 +82,7 @@ class Mission:
         reference = df['reference']
         cave_height = df['cave_height']
         cave_depth = df['cave_depth']
-        return cls(reference, cave_height, cave_depth, mission.reference)
+        return cls(reference, cave_height, cave_depth)
         
 
 
