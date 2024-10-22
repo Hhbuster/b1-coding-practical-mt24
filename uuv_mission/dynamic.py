@@ -83,14 +83,22 @@ class Mission:
         reference = df['reference']
         cave_height = df['cave_height']
         cave_depth = df['cave_depth']
-        print(reference,cave_height,cave_depth)
+        return (reference, cave_height, cave_depth)
         
 
 
 class ClosedLoop:
-    def __init__(self, plant: Submarine, controller):
+    def __init__(self, plant: Submarine, KP, KD ):
         self.plant = plant
-        self.controller = controller
+        self.previous_error = 0.0  # To store the previous error
+        self.kp = KP  # Proportional gain
+        self.kd = KD # Derivative gain
+        
+    def controller(self, reference: float, current_value: float) -> float:
+        error = reference - current_value  # Calculate the error
+        derivative = error - self.previous_error  # Calculate the derivative of the error
+        self.previous_error = error  # Update previous error
+        return self.kp * error + self.kd * derivative  # PD control law
 
     def simulate(self,  mission: Mission, disturbances: np.ndarray) -> Trajectory:
 
@@ -101,12 +109,17 @@ class ClosedLoop:
         positions = np.zeros((T, 2))
         actions = np.zeros(T)
         self.plant.reset_state()
+        
 
         for t in range(T):
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             # Call your controller here
-            
+            # Compute the control action using the PD controller
+            reference = mission.reference[t]  # Desired position from the mission reference
+            current_position = positions[t]  # Current position of the plant
+            actions[t] = self.pd_controller(reference, current_position)  # Call PD controller
+
             self.plant.transition(actions[t], disturbances[t])
 
         return Trajectory(positions)
@@ -114,6 +127,4 @@ class ClosedLoop:
     def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
         disturbances = np.random.normal(0, variance, len(mission.reference))
         return self.simulate(mission, disturbances)
-
-import sys  
-print(sys.path)
+    
