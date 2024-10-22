@@ -79,9 +79,9 @@ class Mission:
     def from_csv(cls, mission: str):
         #code to get the difference columns you need for the controller
         df = pd.read_csv('mission.csv')
-        reference = df['reference']
-        cave_height = df['cave_height']
-        cave_depth = df['cave_depth']
+        reference = df['reference'].to_numpy()
+        cave_height = df['cave_height'].to_numpy()
+        cave_depth = df['cave_depth'].to_numpy()
         return cls(reference, cave_height, cave_depth)
         
 
@@ -100,8 +100,6 @@ class ClosedLoop:
         return self.kp * error + self.kd * derivative  # PD control law
 
     def simulate(self,  mission: Mission, disturbances: np.ndarray) -> Trajectory:
-
-        mission.reference = reference
         T = len(mission.reference)
         if len(disturbances) < T:
             raise ValueError("Disturbances must be at least as long as mission duration")
