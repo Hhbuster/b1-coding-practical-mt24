@@ -73,17 +73,18 @@ class Mission:
     @classmethod
     def random_mission(cls, duration: int, scale: float):
         (reference, cave_height, cave_depth) = generate_reference_and_limits(duration, scale)
-        print(reference)
         return cls(reference, cave_height, cave_depth)
 
     @classmethod
-    def from_csv(cls, file_name: str):
-        #code to get the pos
+    def from_csv(cls, mission: str):
+        #code to get the difference columns you need for the controller
         df = pd.read_csv('mission.csv')
         reference = df['reference']
+        print(reference)
+        mission.reference = df['reference']
         cave_height = df['cave_height']
         cave_depth = df['cave_depth']
-        return (reference, cave_height, cave_depth)
+        return cls(reference, cave_height, cave_depth, mission.reference)
         
 
 
@@ -122,9 +123,9 @@ class ClosedLoop:
 
             self.plant.transition(actions[t], disturbances[t])
 
-        return Trajectory(positions)
+        return (Trajectory(positions), reference)
         
     def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
-        disturbances = np.random.normal(0, variance, len(mission.reference))
+        disturbances = np.random.normal(0, variance, len(reference))
         return self.simulate(mission, disturbances)
     
