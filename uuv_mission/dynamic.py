@@ -3,6 +3,8 @@ from dataclasses import dataclass
 import numpy as np
 import matplotlib.pyplot as plt
 from terrain import generate_reference_and_limits
+import pandas as pd
+
 
 class Submarine:
     def __init__(self):
@@ -71,12 +73,18 @@ class Mission:
     @classmethod
     def random_mission(cls, duration: int, scale: float):
         (reference, cave_height, cave_depth) = generate_reference_and_limits(duration, scale)
+        print(reference)
         return cls(reference, cave_height, cave_depth)
 
     @classmethod
     def from_csv(cls, file_name: str):
-        # You are required to implement this method
-        pass
+        #code to get the pos
+        df = pd.read_csv('mission.csv')
+        reference = df['reference']
+        cave_height = df['cave_height']
+        cave_depth = df['cave_depth']
+        print(reference,cave_height,cave_depth)
+        
 
 
 class ClosedLoop:
@@ -98,6 +106,7 @@ class ClosedLoop:
             positions[t] = self.plant.get_position()
             observation_t = self.plant.get_depth()
             # Call your controller here
+            
             self.plant.transition(actions[t], disturbances[t])
 
         return Trajectory(positions)
@@ -105,3 +114,6 @@ class ClosedLoop:
     def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
         disturbances = np.random.normal(0, variance, len(mission.reference))
         return self.simulate(mission, disturbances)
+
+import sys  
+print(sys.path)
