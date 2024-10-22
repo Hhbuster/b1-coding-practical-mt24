@@ -80,8 +80,6 @@ class Mission:
         #code to get the difference columns you need for the controller
         df = pd.read_csv('mission.csv')
         reference = df['reference']
-        print(reference)
-        mission.reference = df['reference']
         cave_height = df['cave_height']
         cave_depth = df['cave_depth']
         return cls(reference, cave_height, cave_depth, mission.reference)
@@ -103,6 +101,7 @@ class ClosedLoop:
 
     def simulate(self,  mission: Mission, disturbances: np.ndarray) -> Trajectory:
 
+        mission.reference = reference
         T = len(mission.reference)
         if len(disturbances) < T:
             raise ValueError("Disturbances must be at least as long as mission duration")
@@ -125,7 +124,7 @@ class ClosedLoop:
 
         return (Trajectory(positions), reference)
         
-    def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
-        disturbances = np.random.normal(0, variance, len(reference))
-        return self.simulate(mission, disturbances)
+   # def simulate_with_random_disturbances(self, mission: Mission, variance: float = 0.5) -> Trajectory:
+       # disturbances = np.random.normal(0, variance, len(mission.reference))
+        #return self.simulate(mission, disturbances)
     
