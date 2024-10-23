@@ -3,6 +3,8 @@ class PDController:
         self.kp = kp  # Proportional gain
         self.kd = kd  # Derivative gain
         self.previous_error = 0.0  # To store the previous error
+        print(kp)
+        print(kd)
         
     def compute_control(self, reference, output):
         
